@@ -26,7 +26,7 @@ const FormikPostUploader = ({ navigation }) => {
   const [submit, setSubmit] = useState(false);
   const { token } = useSelector((state) => state.tokenReducer);
   // Store New Post
-  useEffect(async () => {
+  useEffect(() => {
     if (!submit) {
       return;
     }

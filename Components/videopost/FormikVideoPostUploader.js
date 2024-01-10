@@ -34,63 +34,65 @@ const FormikVideoPostUploader = ({ navigation }) => {
   const { token } = useSelector((state) => state.tokenReducer);
   const [progress, setProgress] = useState(0);
   // Store New Video Post
-  useEffect(async () => {
-    if (!submit) {
-      return;
-    }
-    if (localImage === "") {
-      setSubmit(false);
-      return;
-    }
-    if (localVideo === "") {
-      setSubmit(false);
-      return;
-    }
-    if (!token.access_token) {
-      setSubmit(false);
-      return;
-    }
-    let thumbnailName = localImage.split("/").pop();
-    let videoName = localVideo.split("/").pop();
-    let thumbnailMatch = /\.(\w+)$/.exec(thumbnailName);
-    let videoMatch = /\.(\w+)$/.exec(videoName);
-    let thumbnailType = thumbnailMatch ? `image/${thumbnailMatch[1]}` : `image`;
-    let videoType = videoMatch ? `video/${videoMatch[1]}` : `video`;
-    let formData = new FormData();
-    formData.append("caption", caption);
-    formData.append("image", {
-      uri: localImage,
-      name: thumbnailName,
-      type: thumbnailType,
-    });
-    formData.append("video", {
-      uri: localVideo,
-      name: videoName,
-      type: videoType,
-    });
-    try {
-      const response = await axios.post(
-        "https://darkvilla.onrender.com/api/post",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token.access_token}`,
-          },
-          onUploadProgress: ({ loaded, total }) =>
-            setProgress(Math.floor((loaded * 100) / total)),
-        }
-      );
-      setSubmit(false);
-      navigation.push("HomeScreen");
-    } catch (error) {
-      Alert.alert(
-        "Video too large!",
-        "Video file must be under 500 MB.",
-      );
-      setSubmit(false);
-      navigation.push("HomeScreen");
-    }
+  useEffect(() => {
+    const store = async () => {
+      if (!submit) {
+        return;
+      }
+      if (localImage === "") {
+        setSubmit(false);
+        return;
+      }
+      if (localVideo === "") {
+        setSubmit(false);
+        return;
+      }
+      if (!token.access_token) {
+        setSubmit(false);
+        return;
+      }
+      let thumbnailName = localImage.split("/").pop();
+      let videoName = localVideo.split("/").pop();
+      let thumbnailMatch = /\.(\w+)$/.exec(thumbnailName);
+      let videoMatch = /\.(\w+)$/.exec(videoName);
+      let thumbnailType = thumbnailMatch
+        ? `image/${thumbnailMatch[1]}`
+        : `image`;
+      let videoType = videoMatch ? `video/${videoMatch[1]}` : `video`;
+      let formData = new FormData();
+      formData.append("caption", caption);
+      formData.append("image", {
+        uri: localImage,
+        name: thumbnailName,
+        type: thumbnailType,
+      });
+      formData.append("video", {
+        uri: localVideo,
+        name: videoName,
+        type: videoType,
+      });
+      try {
+        const response = await axios.post(
+          "https://darkvilla.onrender.com/api/post",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token.access_token}`,
+            },
+            onUploadProgress: ({ loaded, total }) =>
+              setProgress(Math.floor((loaded * 100) / total)),
+          }
+        );
+        setSubmit(false);
+        navigation.push("HomeScreen");
+      } catch (error) {
+        Alert.alert("Video too large!", "Video file must be under 500 MB.");
+        setSubmit(false);
+        navigation.push("HomeScreen");
+      }
+    };
+    store();
   }, [submit]);
   return (
     <View style={{ width: "100%", height: "100%" }}>
@@ -141,35 +143,43 @@ const FormikVideoPostUploader = ({ navigation }) => {
             </View>
             {localVideo === "" ? (
               <TouchableOpacity
-              style={{
-                width: "95%",
-                alignSelf: "center",
-                backgroundColor: "white",
-                borderRadius: 10,
-              }}
-              onPress={() => setVideoModal(true)}
-            >
-              <Text
-                style={{ padding: 10, textAlign: "center", fontWeight: "bold" }}
+                style={{
+                  width: "95%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  borderRadius: 10,
+                }}
+                onPress={() => setVideoModal(true)}
               >
-                ADD NEW VIDEO
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    padding: 10,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ADD NEW VIDEO
+                </Text>
+              </TouchableOpacity>
             ) : (
               <View
-              style={{
-                width: "95%",
-                alignSelf: "center",
-                backgroundColor: "#eee",
-                borderRadius: 10,
-              }}
-            >
-              <Text
-                style={{ padding: 10, textAlign: "center", fontWeight: "bold" }}
+                style={{
+                  width: "95%",
+                  alignSelf: "center",
+                  backgroundColor: "#eee",
+                  borderRadius: 10,
+                }}
               >
-                VIDEO ADDED
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    padding: 10,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  VIDEO ADDED
+                </Text>
+              </View>
             )}
             <Divider
               width={1}
@@ -177,7 +187,12 @@ const FormikVideoPostUploader = ({ navigation }) => {
               style={{ marginTop: 25 }}
             />
             <View
-              style={{ marginTop: 25, width: "25%", alignSelf: "flex-end", marginHorizontal: 5 }}
+              style={{
+                marginTop: 25,
+                width: "25%",
+                alignSelf: "flex-end",
+                marginHorizontal: 5,
+              }}
             >
               {localImage === "" || localVideo === "" || progress > 0 ? (
                 <Button title="SHARE" disabled={true} />

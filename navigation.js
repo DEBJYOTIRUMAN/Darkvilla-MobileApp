@@ -26,6 +26,7 @@ import PopularScreen from "./Screen/PopularScreen";
 import MessengerScreen from "./Screen/MessengerScreen";
 import InitialScreen from "./Screen/InitialScreen";
 import RefreshToken from "./RefreshToken";
+import { StatusBar } from "expo-status-bar";
 
 const { store, persistor } = configureStore();
 const Stack = createStackNavigator();
@@ -35,6 +36,7 @@ const screenOptions = {
 
 const SignedInStack = () => {
   return (
+    <>
     <ReduxProvider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <RefreshToken />
@@ -86,6 +88,8 @@ const SignedInStack = () => {
         </NavigationContainer>
       </PersistGate>
     </ReduxProvider>
+    <StatusBar style="light" />
+    </>
   );
 };
 
