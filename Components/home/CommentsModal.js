@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -104,6 +105,7 @@ export default function CommentsModal({
         </View>
         </ImageBackground>
       </View>
+      <StatusBar backgroundColor="#eee" />
     </View>
   );
 }
@@ -139,7 +141,6 @@ const PostDetails = ({ updatePost, navigation, setModalVisible, profile }) => (
           fontWeight: "bold",
           marginLeft: 8,
           textAlignVertical: "center",
-          textAlign: 'justify'
         }}
       >
         {updatePost.userName}
@@ -185,7 +186,6 @@ const Comments = ({
                 color: "white",
                 fontWeight: "bold",
                 marginHorizontal: 8,
-                textAlign: 'justify'
               }}
             >
               {comment.userName}

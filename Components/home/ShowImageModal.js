@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import {
   View,
@@ -8,7 +9,25 @@ import {
   ImageBackground,
 } from "react-native";
 
-export default function ShowImageModal({ post, setModalVisible }) {
+export default function ShowImageModal({
+  post,
+  setModalVisible,
+  profile,
+  navigation,
+}) {
+  const getProfileById = (Id) => {
+    if (post.userId === Id) {
+      setModalVisible(false);
+      navigation.push("ProfileScreen", profile);
+    } else {
+      fetch(`https://darkvilla.onrender.com/api/profile/user/${post.userId}`)
+        .then((res) => res.json())
+        .then((profile) => {
+          setModalVisible(false);
+          navigation.push("ProfileScreen", profile);
+        });
+    }
+  };
   return (
     <View style={styles.modalContainer}>
       <View style={styles.modalCheckoutContainer}>
@@ -38,15 +57,21 @@ export default function ShowImageModal({ post, setModalVisible }) {
             source={{ uri: post.imageUrl }}
             style={{ width: "100%", height: "100%", resizeMode: "contain" }}
           />
-          <View style={styles.footerStyle}>
-          <Image
-            source={{ uri: post.profilePic }}
-            style={styles.profilePic}
-          />
-          <Text style={{ color: "white", fontWeight: 'bold', marginLeft: 8 }}>{post.userName}</Text>
-          </View>
+          <TouchableOpacity
+            style={styles.footerStyle}
+            onPress={() => getProfileById(profile.userId)}
+          >
+            <Image
+              source={{ uri: post.profilePic }}
+              style={styles.profilePic}
+            />
+            <Text style={{ color: "white", fontWeight: "bold", marginLeft: 8 }}>
+              {post.userName}
+            </Text>
+          </TouchableOpacity>
         </ImageBackground>
       </View>
+      <StatusBar backgroundColor="#eee" />
     </View>
   );
 }
@@ -58,16 +83,15 @@ const styles = StyleSheet.create({
 
   modalCheckoutContainer: {
     height: "100%",
-    borderWidth: 1,
     backgroundColor: "black",
   },
   footerStyle: {
     position: "absolute",
-    flexDirection: 'row',
+    flexDirection: "row",
     bottom: 15,
     marginHorizontal: 15,
     zIndex: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   profilePic: {
     width: 40,

@@ -38,88 +38,92 @@ const SearchScreen = ({ navigation }) => {
   }, [query]);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
-      <ImageBackground source={require("../assets/image/background1.jpg")} style={{flex: 1}} resizeMode="cover">
-      <View style={styles.container}>
-        <Header navigation={navigation} />
-      </View>
-      <View
-        style={{ marginTop: 30, flexDirection: "row", marginHorizontal: 10 }}
+      <ImageBackground
+        source={require("../assets/image/background1.jpg")}
+        style={{ flex: 1 }}
+        resizeMode="cover"
       >
-        <GooglePlacesAutocomplete
-          placeholder="Search"
-          textInputProps={{
-            onChangeText: (text) => setQuery(text),
-            value: query,
-          }}
-          styles={{
-            textInput: {
-              backgroundColor: "#eee",
-              borderRadius: 20,
-              fontWeight: "700",
-              marginTop: 7,
-            },
-            textInputContainer: {
-              backgroundColor: "#eee",
-              borderRadius: 50,
-              flexDirection: "row",
-              alignItems: "center",
-
-              shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 1,
+        <View style={styles.container}>
+          <Header navigation={navigation} />
+        </View>
+        <View
+          style={{ marginTop: 30, flexDirection: "row", marginHorizontal: 10 }}
+        >
+          <GooglePlacesAutocomplete
+            placeholder="Search"
+            textInputProps={{
+              onChangeText: (text) => setQuery(text),
+              value: query,
+            }}
+            styles={{
+              textInput: {
+                backgroundColor: "#eee",
+                borderRadius: 20,
+                fontWeight: "700",
+                marginTop: 7,
               },
-              shadowOpacity: 0.18,
-              shadowRadius: 1.0,
-
-              elevation: 1,
-            },
-          }}
-          renderLeftButton={() => (
-            <View
-              style={{
-                marginLeft: 10,
-              }}
-            >
-              <Ionicons name="search-sharp" size={24} />
-            </View>
-          )}
-          renderRightButton={() => (
-            <TouchableOpacity
-              style={{
+              textInputContainer: {
+                backgroundColor: "#eee",
+                borderRadius: 50,
                 flexDirection: "row",
-                marginRight: 8,
-                backgroundColor: "white",
-                padding: 9,
-                borderRadius: 30,
                 alignItems: "center",
-              }}
-              onPress={() => {
-                setQuery("");
-              }}
-            >
-              <AntDesign
-                name="closecircle"
-                size={11}
-                style={{ marginRight: 6 }}
-              />
-              <Text style={{ fontWeight: "bold" }}>Cancel</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-      {query.length < 3 ? (
-        <></>
-      ) : (
-        <SearchResult
-          searchData={searchData}
-          navigation={navigation}
-          setQuery={setQuery}
-        />
-      )}
-      <View style={styles.wrapper}>
-        <BottomTabs navigation={navigation} tabName="Search" />
-      </View>
+
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.18,
+                shadowRadius: 1.0,
+
+                elevation: 1,
+              },
+            }}
+            renderLeftButton={() => (
+              <View
+                style={{
+                  marginLeft: 10,
+                }}
+              >
+                <Ionicons name="search-sharp" size={24} />
+              </View>
+            )}
+            renderRightButton={() => (
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  marginRight: 8,
+                  backgroundColor: "white",
+                  padding: 9,
+                  borderRadius: 30,
+                  alignItems: "center",
+                }}
+                onPress={() => {
+                  setQuery("");
+                }}
+              >
+                <AntDesign
+                  name="closecircle"
+                  size={11}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={{ fontWeight: "bold" }}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+        {query.length < 3 ? (
+          <></>
+        ) : (
+          <SearchResult
+            searchData={searchData}
+            navigation={navigation}
+            setQuery={setQuery}
+          />
+        )}
+        <View style={styles.wrapper}>
+          <BottomTabs navigation={navigation} tabName="Search" />
+        </View>
       </ImageBackground>
     </SafeAreaView>
   );
@@ -163,17 +167,23 @@ const SearchResult = ({ searchData, navigation, setQuery }) => (
         >
           <View style={{ width: "92%", flexDirection: "row" }}>
             <Image source={{ uri: item.profilePic }} style={styles.story} />
-            <Text
+            <View
               style={{
-                fontSize: 14,
-                fontWeight: "700",
+                flex: 1,
+                justifyContent: "center",
                 marginHorizontal: 10,
-                textAlignVertical: "center",
-                color: "white",
               }}
             >
-              {item.userName}
-            </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "700",
+                  color: "white",
+                }}
+              >
+                {item.userName}
+              </Text>
+            </View>
           </View>
 
           <View
@@ -202,7 +212,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 5
+    marginTop: 5,
   },
   headerText: {
     color: "#fff",

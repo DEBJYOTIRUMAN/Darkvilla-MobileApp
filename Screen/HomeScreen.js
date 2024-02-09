@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  ImageBackground,
+  View,
+  Text,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../Components/home/Header";
 import Post from "../Components/home/Post";
 import Stories from "../Components/home/Stories";
 import { useIsFocused } from "@react-navigation/native";
 import BottomTabs from "../Components/utility/BottomTabs";
+import LottieView from "lottie-react-native";
 const HomeScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
   const [posts, setPosts] = useState([]);
-  // Get All Post
+  const [progress, setProgress] = useState(0);
+
   useEffect(() => {
     if (isFocused) {
       if (route.params) {
@@ -30,19 +38,55 @@ const HomeScreen = ({ navigation, route }) => {
   }, [isFocused]);
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground source={require("../assets/image/background1.jpg")} style={{flex: 1}} resizeMode="cover">
-        <Header
-          navigation={navigation}
-          posts={posts}
-          screenName="Popular Posts"
-        />
+      <ImageBackground
+        source={require("../assets/image/background1.jpg")}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <Header navigation={navigation} screenName="Popular Posts" />
         <Stories navigation={navigation} />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post, index) => (
-            <Post post={post} key={index} navigation={navigation} />
-          ))}
-        </ScrollView>
+        <FlatList
+          data={posts}
+          renderItem={({ item, index }) => (
+            <Post
+              post={item}
+              key={index}
+              navigation={navigation}
+              setProgress={setProgress}
+            />
+          )}
+          keyExtractor={(item) => item._id}
+          showsVerticalScrollIndicator={false}
+        />
         <BottomTabs navigation={navigation} tabName="Home" />
+        {progress > 0 && progress < 100 ? (
+          <View
+            style={{
+              height: "100%",
+              width: "100%",
+              position: "absolute",
+              backgroundColor: "#000",
+              opacity: 0.8,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <LottieView
+              style={{ height: 200 }}
+              source={require("../assets/animations/loading.json")}
+              autoPlay
+            />
+            <View style={{ position: "absolute" }}>
+              <Text
+                style={{ color: "white", fontSize: 24, fontWeight: "bold" }}
+              >
+                {progress}%
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <></>
+        )}
       </ImageBackground>
     </SafeAreaView>
   );

@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, {useState, useEffect} from "react";
 import {
   View,
@@ -45,6 +46,7 @@ export default function LikesModal({ setModalVisible, navigation, postLikes }) {
         </View>
         </ImageBackground>
       </View>
+      <StatusBar backgroundColor="#eee" />
     </View>
   );
 }

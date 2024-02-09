@@ -5,6 +5,7 @@ import {
   Button,
   Modal,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
@@ -12,6 +13,7 @@ import { Formik } from "formik";
 import { Divider } from "react-native-elements";
 import DocUploadModal from "./DocUploadModal";
 import { useSelector } from "react-redux";
+import axios from "axios";
 let caption = "";
 const uploadPostSchema = Yup.object().shape({
   caption: Yup.string()
@@ -20,48 +22,64 @@ const uploadPostSchema = Yup.object().shape({
     .required(),
 });
 
-const FormikPostUploader = ({ navigation }) => {
+const FormikPostUploader = ({ navigation, progress, setProgress }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [localUri, setLocalUri] = useState("");
   const [submit, setSubmit] = useState(false);
   const { token } = useSelector((state) => state.tokenReducer);
   // Store New Post
   useEffect(() => {
-    if (!submit) {
-      return;
-    }
-    if (localUri === "") {
-      setSubmit(false);
-      return;
-    }
-    if (!token.access_token) {
-      setSubmit(false);
-      return;
-    }
-    let filename = localUri.split("/").pop();
-    let match = /\.(\w+)$/.exec(filename);
-    let type = match ? `image/${match[1]}` : `image`;
-
-    let formData = new FormData();
-
-    formData.append("image", { uri: localUri, name: filename, type });
-    formData.append("caption", caption);
-    fetch("https://darkvilla.onrender.com/api/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token.access_token}`,
-      },
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((postData) => {
-        if(postData.message === "File too large"){
-          alert("File is too large.")
-        }
+    const store = async () => {
+      if (!submit) {
+        return;
+      }
+      if (localUri === "") {
         setSubmit(false);
+        return;
+      }
+      if (!token.access_token) {
+        setSubmit(false);
+        return;
+      }
+      let filename = localUri.split("/").pop();
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
+      if (filename.split(".").pop() == "jpeg") {
+        filename = `${filename.split(".")[0]}.jpg`;
+      }
+      if (type == "image/jpeg") {
+        type = "image/jpg";
+      }
+
+      let formData = new FormData();
+
+      formData.append("image", { uri: localUri, name: filename, type });
+      formData.append("caption", caption);
+      try {
+        const response = await axios.post(
+          "https://darkvilla.onrender.com/api/post",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token.access_token}`,
+            },
+            onUploadProgress: ({ loaded, total }) =>
+              setProgress(Math.floor((loaded * 100) / total)),
+          }
+        );
+
+        setSubmit(false);
+        setProgress(0);
         navigation.push("HomeScreen");
-      });
+      } catch (error) {
+        Alert.alert("Oops, something went wrong. Maybe file is too large.");
+        setSubmit(false);
+        setProgress(0);
+        navigation.push("HomeScreen");
+      }
+    };
+    store();
   }, [submit]);
 
   return (
@@ -112,8 +130,15 @@ const FormikPostUploader = ({ navigation }) => {
               </View>
             </View>
             <Divider width={1} orientation="vertical" />
-            <View style={{marginTop: 25, width: "25%", alignSelf: 'flex-end', marginHorizontal: 5}}>
-            {localUri === "" ? (
+            <View
+              style={{
+                marginTop: 25,
+                width: "25%",
+                alignSelf: "flex-end",
+                marginHorizontal: 5,
+              }}
+            >
+              {localUri === "" || progress > 0 ? (
                 <Button title="SHARE" disabled={true} />
               ) : (
                 <Button
@@ -123,7 +148,6 @@ const FormikPostUploader = ({ navigation }) => {
                 />
               )}
             </View>
-              
           </>
         )}
       </Formik>

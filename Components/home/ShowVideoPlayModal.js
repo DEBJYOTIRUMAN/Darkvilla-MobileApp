@@ -2,7 +2,20 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import VideoPlayer from "expo-video-player";
 
-const ShowVideoPlayModal = ({ post, setModalVisible }) => {
+const ShowVideoPlayModal = ({ post, setModalVisible, profile, navigation }) => {
+  const getProfileById = (Id) => {
+    if (post.userId === Id) {
+      setModalVisible(false);
+      navigation.push("ProfileScreen", profile);
+    } else {
+      fetch(`https://darkvilla.onrender.com/api/profile/user/${post.userId}`)
+        .then((res) => res.json())
+        .then((profile) => {
+          setModalVisible(false);
+          navigation.push("ProfileScreen", profile);
+        });
+    }
+  };
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
       <VideoPlay post={post} />
@@ -22,18 +35,21 @@ const ShowVideoPlayModal = ({ post, setModalVisible }) => {
           style={{ width: 30, height: 30 }}
         />
       </TouchableOpacity>
-      <View style={styles.footerStyle}>
+      <TouchableOpacity
+        style={styles.footerStyle}
+        onPress={() => getProfileById(profile.userId)}
+      >
         <Image source={{ uri: post.profilePic }} style={styles.profilePic} />
         <Text style={{ color: "white", fontWeight: "bold", marginLeft: 8 }}>
           {post.userName}
         </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
 const VideoPlay = ({ post }) => {
-    const filename = post.videoUrl.split("/").pop();
-    const serverUrl = `https://darkvilla.onrender.com/api/post/video/${filename}`;
+  const filename = post.videoUrl.split("/").pop();
+  const serverUrl = `https://darkvilla.onrender.com/api/post/video/${filename}`;
   return (
     <View style={{ flex: 1, justifyContent: "center" }}>
       <VideoPlayer

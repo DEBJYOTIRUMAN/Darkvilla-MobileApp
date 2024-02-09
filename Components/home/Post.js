@@ -15,11 +15,12 @@ import EditPostModal from "./EditPostModal";
 import ShowImageModal from "./ShowImageModal";
 import ShowVideoPlayModal from "./ShowVideoPlayModal";
 import downloader from "../../downloader";
-const Post = ({ post, navigation }) => {
+const Post = ({ post, navigation, setProgress }) => {
   const { token } = useSelector((state) => state.tokenReducer);
   const { profile } = useSelector((state) => state.profileReducer);
   const [updatePost, setUpdatePost] = useState(post);
   const [submitLikes, setSubmitLikes] = useState(false);
+  
   //Update Post Likes
   useEffect(() => {
     if (!submitLikes) {
@@ -59,7 +60,7 @@ const Post = ({ post, navigation }) => {
         navigation={navigation}
         profile={profile}
       />
-      <PostImage post={post} />
+      <PostImage post={post} profile={profile} navigation={navigation} />
       <View style={{ marginHorizontal: 15, marginTop: 10 }}>
         <PostFooter
           updatePost={updatePost}
@@ -70,6 +71,7 @@ const Post = ({ post, navigation }) => {
           profilePic={profile.profilePic}
           navigation={navigation}
           profile={profile}
+          setProgress={setProgress}
         />
         {updatePost.likes.length !== 0 ? (
           <Likes postLikes={updatePost.likes} navigation={navigation} />
@@ -162,7 +164,7 @@ const PostHeader = ({ updatePost, navigation, profile }) => {
     </>
   );
 };
-const PostImage = ({ post }) => {
+const PostImage = ({ post, profile, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <>
@@ -185,9 +187,9 @@ const PostImage = ({ post }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         {!post.videoUrl ? (
-          <ShowImageModal post={post} setModalVisible={setModalVisible} />
+          <ShowImageModal post={post} setModalVisible={setModalVisible} profile={profile} navigation={navigation} />
         ) : (
-          <ShowVideoPlayModal post={post} setModalVisible={setModalVisible} />
+          <ShowVideoPlayModal post={post} setModalVisible={setModalVisible} profile={profile} navigation={navigation} />
         )}
       </Modal>
     </>
@@ -202,6 +204,7 @@ const PostFooter = ({
   profilePic,
   navigation,
   profile,
+  setProgress,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   return (
@@ -243,13 +246,29 @@ const PostFooter = ({
                     updatePost.videoUrl,
                     `${updatePost.title}.${updatePost.videoUrl
                       .split(".")
-                      .pop()}`
+                      .pop()}`,
+                    (onProgress) => {
+                      const progressPercentage =
+                        (onProgress.totalBytesWritten /
+                          onProgress.totalBytesExpectedToWrite) *
+                        100;
+                      setProgress(Math.floor(progressPercentage));
+                    },
+                    setProgress,
                   )
                 : downloader(
                     updatePost.imageUrl,
                     `${updatePost.title}.${updatePost.imageUrl
                       .split(".")
-                      .pop()}`
+                      .pop()}`,
+                    (onProgress) => {
+                      const progressPercentage =
+                        (onProgress.totalBytesWritten /
+                          onProgress.totalBytesExpectedToWrite) *
+                        100;
+                      setProgress(Math.floor(progressPercentage));
+                    },
+                    setProgress,
                   )
             }
           >
@@ -310,7 +329,7 @@ const Likes = ({ postLikes, navigation }) => {
 const Caption = ({ updatePost }) => (
   <View style={{ marginTop: 5 }}>
     <Text style={{ color: "white" }}>
-      <Text style={{ fontWeight: "bold", textAlign: "justify" }}>
+      <Text style={{ fontWeight: "bold" }}>
         {updatePost.userName}
       </Text>
       <Text> #{updatePost.caption}</Text>
@@ -391,7 +410,6 @@ const Comments = ({ oneComment, navigation, profile }) => {
             color: "white",
             fontWeight: "bold",
             marginHorizontal: 6,
-            textAlign: "justify",
           }}
         >
           {oneComment.userName}
@@ -401,7 +419,13 @@ const Comments = ({ oneComment, navigation, profile }) => {
           </Text>
         </Text>
       </View>
-      <View style={{ width: "5%", justifyContent: "center", alignItems: 'flex-end' }}>
+      <View
+        style={{
+          width: "5%",
+          justifyContent: "center",
+          alignItems: "flex-end",
+        }}
+      >
         <Image
           source={require("../../assets/icons/dot.png")}
           style={{ width: 16, height: 16 }}

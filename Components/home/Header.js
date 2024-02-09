@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import NewPostModal from "./NewPostModal";
-const Header = ({ navigation, posts, screenName }) => {
+const Header = ({ navigation, screenName }) => {
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <>
@@ -29,7 +29,6 @@ const Header = ({ navigation, posts, screenName }) => {
           <TouchableOpacity
             onPress={() => {
               navigation.push("PopularScreen", {
-                data: posts,
                 screenName: screenName
               });
             }}

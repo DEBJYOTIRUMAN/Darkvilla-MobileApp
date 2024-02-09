@@ -16,7 +16,6 @@ import { useSelector } from "react-redux";
 import ImageUploadModal from "../post-video/ImageUploadModal";
 import VideoUploadModal from "../post-video/VideoUploadModal";
 import axios from "axios";
-import LottieView from "lottie-react-native";
 
 let caption = "";
 const uploadVideoPostSchema = Yup.object().shape({
@@ -25,14 +24,13 @@ const uploadVideoPostSchema = Yup.object().shape({
     .min(6, "Caption must be at least 6 characters.")
     .required(),
 });
-const FormikVideoPostUploader = ({ navigation }) => {
+const FormikVideoPostUploader = ({ navigation, progress, setProgress }) => {
   const [imageModal, setImageModal] = useState(false);
   const [videoModal, setVideoModal] = useState(false);
   const [localVideo, setLocalVideo] = useState("");
   const [localImage, setLocalImage] = useState("");
   const [submit, setSubmit] = useState(false);
   const { token } = useSelector((state) => state.tokenReducer);
-  const [progress, setProgress] = useState(0);
   // Store New Video Post
   useEffect(() => {
     const store = async () => {
@@ -59,6 +57,12 @@ const FormikVideoPostUploader = ({ navigation }) => {
         ? `image/${thumbnailMatch[1]}`
         : `image`;
       let videoType = videoMatch ? `video/${videoMatch[1]}` : `video`;
+      if (thumbnailName.split(".").pop() == "jpeg") {
+        thumbnailName = `${thumbnailName.split(".")[0]}.jpg`;
+      }
+      if (thumbnailType == "image/jpeg") {
+        thumbnailType = "image/jpg";
+      }
       let formData = new FormData();
       formData.append("caption", caption);
       formData.append("image", {
@@ -85,17 +89,19 @@ const FormikVideoPostUploader = ({ navigation }) => {
           }
         );
         setSubmit(false);
+        setProgress(0);
         navigation.push("HomeScreen");
       } catch (error) {
         Alert.alert("Video too large!", "Video file must be under 500 MB.");
         setSubmit(false);
+        setProgress(0);
         navigation.push("HomeScreen");
       }
     };
     store();
   }, [submit]);
   return (
-    <View style={{ width: "100%", height: "100%" }}>
+    <>
       <Formik
         initialValues={{ caption: "" }}
         onSubmit={(values) => {
@@ -231,33 +237,7 @@ const FormikVideoPostUploader = ({ navigation }) => {
           setLocalVideo={setLocalVideo}
         />
       </Modal>
-      {progress > 0 ? (
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            backgroundColor: "black",
-            position: "absolute",
-            opacity: 0.8,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <LottieView
-            style={{ height: 200 }}
-            source={require("../../assets/animations/loading.json")}
-            autoPlay
-          />
-          <View style={{ position: "absolute" }}>
-            <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
-              {progress}%
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <></>
-      )}
-    </View>
+    </>
   );
 };
 export default FormikVideoPostUploader;

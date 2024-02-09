@@ -2,11 +2,11 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import FormikVideoPostUploader from "./FormikVideoPostUploader";
 
-const AddNewVideoPost = ({ navigation }) => {
+const AddNewVideoPost = ({ navigation, progress, setProgress }) => {
   return (
     <View style={styles.container}>
       <Header navigation={navigation} />
-      <FormikVideoPostUploader navigation={navigation} />
+      <FormikVideoPostUploader navigation={navigation} progress={progress} setProgress={setProgress} />
     </View>
   );
 };
